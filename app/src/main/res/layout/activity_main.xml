@@ -1,0 +1,247 @@
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/connectButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/connect_padding"
+            android:text="Conéctate"
+            android:textSize="@dimen/connect_text_size" />
+
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="No Conectado"
+            android:textStyle="italic"
+            android:textSize="@dimen/connect_text_size"
+            android:padding="@dimen/connect_padding"
+            android:id="@+id/connectText"/>
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recibir Datos"
+        android:enabled="false"
+        android:id="@+id/getDataButton"
+        android:padding="@dimen/connect_padding"
+        android:layout_marginTop="@dimen/buttons_padding_top"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Continuar Recibiendo Datos"
+        android:enabled="false"
+        android:id="@+id/keepGettingDataButton"
+        android:padding="@dimen/connect_padding" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/data_title_size"
+        android:text="Datos Recibidos"
+        android:paddingTop="@dimen/data_title_padding_top"
+        android:textStyle="bold"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="@dimen/data_label_size"
+            android:layout_height="wrap_content"
+            android:text="PM 2,5"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"
+            android:id="@+id/pm25Text"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="@dimen/data_label_size"
+            android:layout_height="wrap_content"
+            android:text="PM 10"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"/>
+
+        <EditText
+            android:id="@+id/pm10Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="@dimen/data_label_size"
+            android:layout_height="wrap_content"
+            android:text="Temperatura"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"
+            android:id="@+id/temp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="@dimen/data_label_size"
+            android:layout_height="wrap_content"
+            android:text="Humedad"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"
+            android:id="@+id/humidity"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/data_title_size"
+        android:text="Georeferencia"
+        android:paddingTop="@dimen/data_title_padding_top"
+        android:textStyle="bold"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="@dimen/data_label_size"
+            android:layout_height="wrap_content"
+            android:text="Latitud"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"/>
+
+        <EditText
+            android:id="@+id/lat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="@dimen/data_label_size"
+            android:layout_height="wrap_content"
+            android:text="Longitud"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/data_padding"
+            android:textSize="@dimen/data_size"
+            android:id="@+id/lon"/>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="3"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/buttons_padding_top">
+        <Button android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enviar Datos"
+            android:textSize="@dimen/data_button_size"
+            android:padding="@dimen/data_button_padding"
+            android:id="@+id/sendButton"/>
+        <Button android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Borrar Datos"
+            android:textSize="@dimen/data_button_size"
+            android:padding="@dimen/data_button_padding"
+            android:id="@+id/eraseButton"/>
+        <Button android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Visualizar"
+            android:textSize="@dimen/data_button_size"
+            android:padding="@dimen/data_button_padding"
+            android:id="@+id/visualizeButton"/>
+    </LinearLayout>
+
+        <WebView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/webView"
+            android:visibility="gone"></WebView>
+
+        <com.samfierro.hiri.TouchyWebView
+            android:layout_marginTop="@dimen/viz_view_padding_top"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:id="@+id/vizWeb"
+            android:visibility="gone"
+            ></com.samfierro.hiri.TouchyWebView>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Actualizar"
+            android:id="@+id/refreshButton"
+            android:visibility="gone"
+            android:padding="@dimen/refresh_padding"/>
+
+    </LinearLayout>
+</ScrollView>
