@@ -3,8 +3,11 @@ package com.samfierro.hiri;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -82,6 +85,14 @@ public class MainActivity extends AppCompatActivity {
 
         mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
 
+        // Bluetooth Broadcast Receiver to detect changes in connection
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        this.registerReceiver(mReceiver, filter);
+
+
         try {mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);}
         catch (SecurityException e) {Log.e("GPS", "Security Error");}
 
@@ -151,8 +162,8 @@ public class MainActivity extends AppCompatActivity {
         visualizeView.getSettings().setJavaScriptEnabled(true);
 
 //      #############replace with correct embedded map.##########################################################
-        // Annoying map pop-up
-        //visualizeView.loadUrl("https://samfierro.cartodb.com/viz/2942f7d2-3980-11e6-9d7a-0ecfd53eb7d3/embed_map");
+        // Map pop-up
+        // visualizeView.loadUrl("https://samfierro.cartodb.com/viz/2942f7d2-3980-11e6-9d7a-0ecfd53eb7d3/embed_map");
 
         refreshButton = (Button) findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(new View.OnClickListener() {
@@ -164,13 +175,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Created by Kate - detects changes in Bluetooth connection
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+            //Device is now connected
+                connected = true;
+                Log.e("Connected", "Broadcast receiver");
+                connectButton.setText("Desconéctate");
+                connectText.setText("Conectado" + " " + myDevice.getName().toString());
+                getButton.setEnabled(true);
+                continueDataButton.setEnabled(true);
+            }
+
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+            //Device has disconnected
+                connected = false;
+                Log.e("Disconnected", "Broadcast recevier");
+            }
+        }
+    };
+
     @Override
     public void onResume() {
         super.onResume();
         setUpBluetooth();
     }
 
-    //calls function to start or stop getting data constantly
+    // Calls function to start or stop getting data constantly
     private void continueData() {
         if (!collectData) {
             collectData = true;
@@ -184,17 +220,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //gets and sends data every 4 seconds
+    // Gets and sends data every 4 seconds
+    // When connection is lost, checks for connection every 15 seconds
     Handler handler = new Handler();
     private final Runnable runSendData = new Runnable(){
         public void run(){
             try {
-                //prepare and send the data here..
-                getData();
-                sendData();
+
+                // connected
+                if (connected) {
+                    //prepare and send the data here..
+                    getData();
+                    sendData();
+                    handler.postDelayed(this, 4000);
+                }
+
+                // connection lost
+                else {
+                    try {
+                        connectBluetooth();
+                    }
+                    catch(Exception e) {}
+                    handler.postDelayed(this, 20000);
+                }
+
 //###############scheduled to run every 5 seconds. change the 5 to another number to change the seconds.
 //###############for example, 30000 would be 30 seconds.
-                handler.postDelayed(this, 4000);
+
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -226,86 +278,45 @@ public class MainActivity extends AppCompatActivity {
             Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBT, REQUEST_BLUETOOTH);
         }
-
-        // Gets list of all paired Bluetooth devices
-//        Set<BluetoothDevice> pairedDevices = BTAdapter.getBondedDevices();
-
-//        if (pairedDevices.size() > 0) {
-//            for (BluetoothDevice device : pairedDevices) {
-////              ########################## BLUETOOTH DEVICE NAME ####################
-//                // Hardcoded - doesn't allow the user to select a device
-//                if (device.getAddress().equals("98:D3:32:30:BC:5E")) {
-//                    paired = true;
-//                    myDevice = device;
-//                    break;
-//                }
-//            }
-//        }
     }
 
     /**
      * Connects paired bluetooth sensor
      */
     private void bluetoothButton() {
-        // no paired devices
+        // No paired devices
         if (BTAdapter.getBondedDevices().size() == 0) {
             pairDialog();
         }
-        // disconnected -> connected
+        // Connect
         else if (!connected) {
-            if (!paired) {
-                chooseBluetooth();
-            }
-            else if (paired) {
-                connectBluetooth();
-            }
-        // connected -> disconnected
-        } else if (connected){
+            chooseBluetooth();
+        }
+        // Disconnect
+        else if (connected){
             disconnectBluetooth();
         }
     }
 
-    // connects bluetooth
+    // Connects bluetooth
     private void connectBluetooth() {
         connectText.setText("Conectando...");
         try {
             socket = myDevice.createRfcommSocketToServiceRecord(PORT_UUID);
             socket.connect();
-        } catch (IOException e) {System.out.println(e);}
-        connected = true;
-        connectButton.setText("Desconéctate");
-        connectText.setText("Conectado" + " " + myDevice.getName().toString());
-        getButton.setEnabled(true);
-        continueDataButton.setEnabled(true);
+        } catch (IOException e) {connectText.setText("Error al conectarse");}
+
     }
 
     // disconnects bluetooth
     private void disconnectBluetooth() {
-        try {socket.close();} catch (IOException e) {System.out.println(e);}
-        connected = false;
         connectButton.setText("Conéctate");
         connectText.setText("No Conectado");
         getButton.setEnabled(false);
         continueDataButton.setEnabled(false);
+        try {socket.close();} catch (IOException e) {System.out.println(e);}
     }
 
-//    private Location getLastKnownLocation() {
-//        mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
-//        List<String> providers = mLocationManager.getProviders(true);
-//        Location bestLocation = null;
-//        for (String provider : providers) {
-//            try{
-//                Location l = mLocationManager.getLastKnownLocation(provider);
-//                if (l == null) {
-//                    continue;
-//                }
-//                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-//                    // Found best last known location: %s", l);
-//                    bestLocation = l;
-//                }} catch (SecurityException e) {}
-//        }
-//        return bestLocation;
-//    }
 
     /**By Kate**/
     /** Determines whether one Location reading is better than the current Location fix**/
@@ -381,8 +392,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-        public void onProviderEnabled(String provider) {
-        }
+        public void onProviderEnabled(String provider) {}
 
         public void onProviderDisabled(String provider) {}
     };
@@ -425,10 +435,9 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(e);
         }
         try {
-            //gets location
-//            Location location = getLastKnownLocation();
+            // Gets location from all providers and finds the best
+
             List<String> providers = mLocationManager.getProviders(true);
-            //Log.e("Providers", providers.toString());
 
             for (String provider : providers) {
                 try{
@@ -442,17 +451,16 @@ public class MainActivity extends AppCompatActivity {
             if (bestLocation != null) {
                 longitude = bestLocation.getLongitude();
                 latitude = bestLocation.getLatitude();
-                //send the location source to cartoDB to run tests
             }
+
             lon.setText("" + longitude);
             lat.setText("" + latitude);
-        } catch (SecurityException e) {
-            System.out.println(e);
-        }
+
+        } catch (SecurityException e) {System.out.println(e);}
     }
 
     private void getTime() {
-        //gets date and time
+        // Gets date and time
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         newDate = dateFormat.format(date);
@@ -461,6 +469,7 @@ public class MainActivity extends AppCompatActivity {
         newDate = "'" + newDate + "'";
         newTime = dateTime.get(1);
         newTime = "'" + newTime + "'";
+
         //####TO SEND A STRING TO CARTODB YOU NEED TO ADD WRAP IT IN SINGLE QUOTES LIKE THIS: 'myString' ####
     }
 
@@ -472,7 +481,7 @@ public class MainActivity extends AppCompatActivity {
         String lat_coord = lat.getText().toString();
         String long_coord = lon.getText().toString();
 
-        //Need to wrap any data to send to the DB in single quotes
+        // Need to wrap any data to send to the DB in single quotes
         String pm25String = pm25.getText().toString();
         String pm10String = pm10.getText().toString();
         String tempString = temp.getText().toString();
@@ -483,12 +492,14 @@ public class MainActivity extends AppCompatActivity {
                 && pm10String.equals("") && tempString.equals("") && humString.equals("")) {
             sendDialog();
         } else {
+
 //          ################replace link with correct cartoDB user name and api key.################################
 //          ################can change what values are sent depending on cartoDB table.#############################
             //String link = "https://samfierro.cartodb.com/api/v2/sql?q=INSERT INTO test (pm_25, date, time, the_geom) VALUES ("+pm25String+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=02e8c4a7c19b20c6dd81015ea2af533aeadf19de";
             String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO test (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
             webView.loadUrl(link);
             Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_LONG).show();
+
         }
     }
 
@@ -532,19 +543,30 @@ public class MainActivity extends AppCompatActivity {
             deviceItemList.add(device.getName());
             deviceAddressList.add(device.getAddress());
         }
+        deviceItemList.add("Emparejar otro dispositivo");
 
         final CharSequence[] devices = deviceItemList.toArray(new CharSequence[deviceItemList.size()]);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Conexiones Disponibles");
+        builder.setTitle("Dispositivos emparejados");
         builder.setItems(devices, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                for (BluetoothDevice device : pairedDevices) {
-                    if (device.getAddress().equals(deviceAddressList.get(which))) {
-                        paired = true;
-                        myDevice = device;
-                        break;
+
+                if (which >= deviceAddressList.size()) {
+                    Intent intentOpenBluetoothSettings = new Intent();
+                    intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                    startActivity(intentOpenBluetoothSettings);
+                }
+
+                else {
+                    for (BluetoothDevice device : pairedDevices) {
+                        if (device.getAddress().equals(deviceAddressList.get(which))) {
+                            paired = true;
+                            myDevice = device;
+                            connectBluetooth();
+                            break;
+                        }
                     }
                 }
             }
@@ -553,10 +575,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pairDialog() {
-        //dialog appears the bluetooth device isn't paired, so press OK to go to bluetooth screen in settings!
+        // Dialog appears the bluetooth device isn't paired, so press OK to go to bluetooth screen in settings!
         new AlertDialog.Builder(this)
-                .setTitle("No Bluetooth Device Paired")
-                .setMessage("Please pair device in settings")
+                .setTitle("No hay dispositivo Bluetooth pareado.")
+                .setMessage("Agrupe por favor el dispositivo en ajustes.")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intentOpenBluetoothSettings = new Intent();
@@ -575,8 +597,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("No datos para enviar")
-                .setMessage("Por favor ponga datos antes de enviar")
+                .setTitle("No datos para enviar.")
+                .setMessage("Por favor ponga datos antes de enviar.")
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
