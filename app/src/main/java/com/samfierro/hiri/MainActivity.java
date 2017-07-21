@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
     private double longitude;
     private double latitude;
-    //private String locationSource;
 
     private String newDate;
     private String newTime;
@@ -94,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);}
-        catch (SecurityException e) {Log.e("GPS", "Security Error");}
+        catch (SecurityException e) {}
 
         try {mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);}
-        catch (SecurityException e) {Log.e("Network", "Security Error");}
+        catch (SecurityException e) {}
 
         pm25 = (EditText) findViewById(R.id.pm25Text);
         pm10 = (EditText) findViewById(R.id.pm10Text);
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         getButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getData();
+                getData(false);
             }
         });
 
@@ -185,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
             //Device is now connected
                 connected = true;
-                Log.e("Connected", "Broadcast receiver");
                 connectButton.setText("Desconéctate");
                 connectText.setText("Conectado" + " " + myDevice.getName().toString());
                 getButton.setEnabled(true);
@@ -195,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             //Device has disconnected
                 connected = false;
-                Log.e("Disconnected", "Broadcast recevier");
             }
         }
     };
@@ -227,21 +224,24 @@ public class MainActivity extends AppCompatActivity {
         public void run(){
             try {
 
-                // connected
+                // Connected
                 if (connected) {
-                    //prepare and send the data here..
-                    getData();
-                    sendData();
+                    // Prepare and send the data here..
+                    getData(true);
                     handler.postDelayed(this, 4000);
                 }
 
-                // connection lost
+                // Connection lost
                 else {
-                    try {
-                        connectBluetooth();
+                    // To cut system connect delay
+                    long end = System.currentTimeMillis() + 4000;
+                    while (System.currentTimeMillis() < end) {
+                        try {
+                            connectBluetooth();
+                        } catch (Exception e) {
+                        }
                     }
-                    catch(Exception e) {}
-                    handler.postDelayed(this, 20000);
+                    handler.postDelayed(this, 10000);
                 }
 
 //###############scheduled to run every 5 seconds. change the 5 to another number to change the seconds.
@@ -397,11 +397,42 @@ public class MainActivity extends AppCompatActivity {
         public void onProviderDisabled(String provider) {}
     };
 
+
     //time stamp
     /**
      * Reads data from bluetooth sensor and gets geocoordinate
      */
-    private void getData() {
+    private void getData(boolean send) {
+
+        // Gets location from all providers and finds the best
+        try {
+
+            // I think this code is redundant with Location Updates
+// ****************************************************************************************
+            List<String> providers = mLocationManager.getProviders(true);
+
+            for (String provider : providers) {
+                try{
+
+                    Location l = mLocationManager.getLastKnownLocation(provider);
+                    updateBestLocation(l);
+
+                } catch (SecurityException e) {}
+            }
+// ***************************************************************************************
+
+            if (bestLocation != null) {
+                longitude = bestLocation.getLongitude();
+                latitude = bestLocation.getLatitude();
+            }
+
+            lon.setText("" + longitude);
+            lat.setText("" + latitude);
+
+        } catch (SecurityException e) {System.out.println(e);}
+
+
+        // Reads bluetooth
         try {
             String data = "";
             inputStream = socket.getInputStream();
@@ -416,47 +447,42 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            List<String> dataList = Arrays.asList(data.split(","));
+            List<String> dataList = Arrays.asList(data.split("\n"));
+
+            for (int i = 0; i < dataList.size(); i++) {
+                String parsed = dataList.get(i);
+
+                List<String> newData = Arrays.asList(parsed.split(","));
+
+                if (newData.size() == 3) {
+
+                    pm25.setText(newData.get(0));
+                    temp.setText(newData.get(1));
+                    hum.setText(newData.get(2));
+                    // Send data only when you want to (pass true to send, false otherwise)
+                    if (send) {
+                        sendData();
+                    }
+                }
+            }
 
             // Temporary fix for data input size
-            if (dataList.size() == 3) {
-                pm25.setText(dataList.get(0));
-                temp.setText(dataList.get(2));
-                hum.setText(dataList.get(1));
-            }
-            else if (dataList.size() > 3) {
-                pm25.setText(dataList.get(dataList.size() - 3).substring(3));
-                temp.setText(dataList.get(dataList.size() - 1));
-                hum.setText(dataList.get(dataList.size() - 2));
-            }
+//            if (dataList.size() == 3) {
+//                pm25.setText(dataList.get(0));
+//                temp.setText(dataList.get(2));
+//                hum.setText(dataList.get(1));
+//            }
+//            else if (dataList.size() > 3) {
+//                pm25.setText(dataList.get(dataList.size() - 3).substring(3));
+//                temp.setText(dataList.get(dataList.size() - 1));
+//                hum.setText(dataList.get(dataList.size() - 2));
+//            }
 
 
         } catch (IOException e) {
             System.out.println(e);
         }
-        try {
-            // Gets location from all providers and finds the best
 
-            List<String> providers = mLocationManager.getProviders(true);
-
-            for (String provider : providers) {
-                try{
-
-                    Location l = mLocationManager.getLastKnownLocation(provider);
-                    updateBestLocation(l);
-
-                } catch (SecurityException e) {}
-            }
-
-            if (bestLocation != null) {
-                longitude = bestLocation.getLongitude();
-                latitude = bestLocation.getLatitude();
-            }
-
-            lon.setText("" + longitude);
-            lat.setText("" + latitude);
-
-        } catch (SecurityException e) {System.out.println(e);}
     }
 
     private void getTime() {
@@ -482,11 +508,12 @@ public class MainActivity extends AppCompatActivity {
         String long_coord = lon.getText().toString();
 
         // Need to wrap any data to send to the DB in single quotes
-        String pm25String = pm25.getText().toString();
-        String pm10String = pm10.getText().toString();
-        String tempString = temp.getText().toString();
-        String humString = hum.getText().toString();
+        String pm25String = "'" + pm25.getText().toString() + "'";
+        String pm10String = "'" + pm10.getText().toString() + "'";
+        String tempString = "'" + temp.getText().toString() + "'";
+        String humString = "'" + hum.getText().toString() + "'";
         String sensString = "'" + myDevice.getName() + "'";
+
 
         if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("")
                 && pm10String.equals("") && tempString.equals("") && humString.equals("")) {
@@ -499,7 +526,6 @@ public class MainActivity extends AppCompatActivity {
             String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO test (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
             webView.loadUrl(link);
             Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_LONG).show();
-
         }
     }
 
@@ -543,7 +569,6 @@ public class MainActivity extends AppCompatActivity {
             deviceItemList.add(device.getName());
             deviceAddressList.add(device.getAddress());
         }
-        deviceItemList.add("Emparejar otro dispositivo");
 
         final CharSequence[] devices = deviceItemList.toArray(new CharSequence[deviceItemList.size()]);
 
@@ -553,22 +578,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (which >= deviceAddressList.size()) {
-                    Intent intentOpenBluetoothSettings = new Intent();
-                    intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-                    startActivity(intentOpenBluetoothSettings);
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getAddress().equals(deviceAddressList.get(which))) {
+                    paired = true;
+                    myDevice = device;
+                    connectBluetooth();
+                    break;
                 }
+            }
 
-                else {
-                    for (BluetoothDevice device : pairedDevices) {
-                        if (device.getAddress().equals(deviceAddressList.get(which))) {
-                            paired = true;
-                            myDevice = device;
-                            connectBluetooth();
-                            break;
-                        }
-                    }
-                }
             }
         });
         builder.show();
