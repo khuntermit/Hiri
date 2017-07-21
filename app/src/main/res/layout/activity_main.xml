@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text=""
+            android:text=" "
             android:textStyle="italic"
             android:textSize="@dimen/connect_text_size"
             android:padding="@dimen/connect_padding"

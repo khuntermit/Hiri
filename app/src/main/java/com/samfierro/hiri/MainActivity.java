@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -23,6 +24,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private Button refreshButton;
     private Button continueDataButton;
     private Button databaseButton;
+    private TextView databaseText;
 
     public Boolean connected = false;
     public Boolean paired = false;
@@ -73,13 +77,12 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager mLocationManager;
     private Location bestLocation;
 
-    private static String database = "default";
+    private static String database = "default_base";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        databaseButton.setText("Base de Datos: " + database);
 
         BTAdapter = BluetoothAdapter.getDefaultAdapter();
         setUpBluetooth();
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         webView = (WebView) findViewById(R.id.webView);
         connectText = (TextView) findViewById(R.id.connectText);
+        databaseText = (TextView) findViewById(R.id.databaseText);
 
         continueDataButton = (Button) findViewById(R.id.keepGettingDataButton);
         continueDataButton.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         databaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Database stuff
+                pickDatabase();
             }
         });
 
@@ -183,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
                 refreshMap();
             }
         });
+
+        databaseText.setText("Base de Datos: " + database);
 
     }
 
@@ -317,6 +323,35 @@ public class MainActivity extends AppCompatActivity {
             socket = myDevice.createRfcommSocketToServiceRecord(PORT_UUID);
             socket.connect();
         } catch (IOException e) {connectText.setText("Error al conectarse");}
+
+    }
+
+    public void pickDatabase() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("El nombre de su base de datos");
+
+// Set up the input
+        final EditText input = new EditText(this);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                database = input.getText().toString();
+                databaseText.setText("Base de Datos: " + database);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
 
     }
 
@@ -537,7 +572,7 @@ public class MainActivity extends AppCompatActivity {
 //          ################replace link with correct cartoDB user name and api key.################################
 //          ################can change what values are sent depending on cartoDB table.#############################
             //String link = "https://samfierro.cartodb.com/api/v2/sql?q=INSERT INTO test (pm_25, date, time, the_geom) VALUES ("+pm25String+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=02e8c4a7c19b20c6dd81015ea2af533aeadf19de";
-            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO test (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
+            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO "+database+" (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
             webView.loadUrl(link);
             Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_LONG).show();
         }
@@ -641,4 +676,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    public void setDatabaseText(TextView databaseText) {
+        this.databaseText = databaseText;
+    }
 }
