@@ -36,6 +36,31 @@
             android:id="@+id/connectText"/>
     </LinearLayout>
 
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/databaseButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/connect_padding"
+            android:text="Cambiar"
+            android:textSize="@dimen/connect_text_size" />
+
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text=""
+            android:textStyle="italic"
+            android:textSize="@dimen/connect_text_size"
+            android:padding="@dimen/connect_padding"
+            android:id="@+id/databaseText"/>
+    </LinearLayout>
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -84,25 +109,25 @@
             android:id="@+id/pm25Text"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="@dimen/data_label_size"
-            android:layout_height="wrap_content"
-            android:text="PM 10"
-            android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size"/>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal">-->
+        <!--<TextView-->
+            <!--android:layout_width="@dimen/data_label_size"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="PM 10"-->
+            <!--android:padding="@dimen/data_padding"-->
+            <!--android:textSize="@dimen/data_size"/>-->
 
-        <EditText
-            android:id="@+id/pm10Text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size" />
-    </LinearLayout>
+        <!--<EditText-->
+            <!--android:id="@+id/pm10Text"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:padding="@dimen/data_padding"-->
+            <!--android:textSize="@dimen/data_size" />-->
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"

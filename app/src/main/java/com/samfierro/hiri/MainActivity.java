@@ -37,7 +37,7 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText pm25; private EditText pm10;
+    private EditText pm25; //private EditText pm10;
     private EditText temp; private EditText hum;
     private EditText lat; private EditText lon;
 
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private TouchyWebView visualizeView;
     private Button refreshButton;
     private Button continueDataButton;
+    private Button databaseButton;
 
     public Boolean connected = false;
     public Boolean paired = false;
@@ -72,10 +73,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager mLocationManager;
     private Location bestLocation;
 
+    private static String database = "default";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        databaseButton.setText("Base de Datos: " + database);
 
         BTAdapter = BluetoothAdapter.getDefaultAdapter();
         setUpBluetooth();
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         catch (SecurityException e) {}
 
         pm25 = (EditText) findViewById(R.id.pm25Text);
-        pm10 = (EditText) findViewById(R.id.pm10Text);
+        //pm10 = (EditText) findViewById(R.id.pm10Text);
         temp = (EditText) findViewById(R.id.temp);
         hum = (EditText) findViewById(R.id.humidity);
         lat = (EditText) findViewById(R.id.lat);
@@ -121,6 +125,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 bluetoothButton();
+            }
+        });
+
+        databaseButton = (Button) findViewById(R.id.databaseButton);
+        databaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Database stuff
             }
         });
 
@@ -508,22 +520,24 @@ public class MainActivity extends AppCompatActivity {
         String long_coord = lon.getText().toString();
 
         // Need to wrap any data to send to the DB in single quotes
+
         String pm25String = "'" + pm25.getText().toString() + "'";
-        String pm10String = "'" + pm10.getText().toString() + "'";
+        //String pm10String = "'" + pm10.getText().toString() + "'";
         String tempString = "'" + temp.getText().toString() + "'";
         String humString = "'" + hum.getText().toString() + "'";
         String sensString = "'" + myDevice.getName() + "'";
 
 
-        if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("")
-                && pm10String.equals("") && tempString.equals("") && humString.equals("")) {
+//        if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("")
+//                && pm10String.equals("") && tempString.equals("") && humString.equals("")) {
+        if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("") && tempString.equals("") && humString.equals("")) {
             sendDialog();
         } else {
 
 //          ################replace link with correct cartoDB user name and api key.################################
 //          ################can change what values are sent depending on cartoDB table.#############################
             //String link = "https://samfierro.cartodb.com/api/v2/sql?q=INSERT INTO test (pm_25, date, time, the_geom) VALUES ("+pm25String+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=02e8c4a7c19b20c6dd81015ea2af533aeadf19de";
-            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO test_copy (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
+            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO test (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
             webView.loadUrl(link);
             Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_LONG).show();
         }
@@ -552,7 +566,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void eraseData() {
         pm25.setText("");
-        pm10.setText("");
+        //pm10.setText("");
         temp.setText("");
         hum.setText("");
         lat.setText("");
