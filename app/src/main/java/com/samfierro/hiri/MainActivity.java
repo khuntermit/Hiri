@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager mLocationManager;
     private Location bestLocation;
 
-    private static String database = "default_base";
+    private static String database = "Default Base";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -568,11 +568,11 @@ public class MainActivity extends AppCompatActivity {
         if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("") && tempString.equals("") && humString.equals("")) {
             sendDialog();
         } else {
-
+            String baseAddress = database.toLowerCase().replaceAll(" ", "_");
 //          ################replace link with correct cartoDB user name and api key.################################
 //          ################can change what values are sent depending on cartoDB table.#############################
             //String link = "https://samfierro.cartodb.com/api/v2/sql?q=INSERT INTO test (pm_25, date, time, the_geom) VALUES ("+pm25String+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=02e8c4a7c19b20c6dd81015ea2af533aeadf19de";
-            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO "+database+" (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
+            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO "+baseAddress+" (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
             webView.loadUrl(link);
             Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_LONG).show();
         }
