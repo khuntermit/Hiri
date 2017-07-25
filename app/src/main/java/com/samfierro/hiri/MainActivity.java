@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public Boolean connected = false;
     public Boolean paired = false;
     private Boolean collectData = false;
+    private Boolean intentionalDisconnect = false;
 
     private BluetoothAdapter BTAdapter;
     private BluetoothDevice myDevice;
@@ -210,10 +211,15 @@ public class MainActivity extends AppCompatActivity {
 
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             //Device has disconnected
+                if (intentionalDisconnect != true) {
+                    //timed pop up warning
+                }
                 connected = false;
+                intentionalDisconnect = false;
             }
         }
     };
+
 
     @Override
     public void onResume() {
@@ -357,6 +363,7 @@ public class MainActivity extends AppCompatActivity {
 
     // disconnects bluetooth
     private void disconnectBluetooth() {
+        intentionalDisconnect = true;
         connectButton.setText("Conéctate");
         connectText.setText("No Conectado");
         getButton.setEnabled(false);
@@ -583,7 +590,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void visualize() {
         if (visualizeButton.getText().equals("Visualizar")) {
+            String apiKey = "AIzaSyD1Wiza9tr_q_B0A05GdMKFYMBXkq9x5WI";
+            //visualizeView.loadUrl("https://khunter.carto.com/builder/8e06ad29-3e11-491f-aa4f-9d51ef7b55f0/embed?state=%7B%22map%22%3A%7B%22ne%22%3A%5B-33.52908912819004%2C-70.78903198242189%5D%2C%22sw%22%3A%5B-33.36895783056422%2C-70.50338745117189%5D%2C%22center%22%3A%5B-33.4490604352388%2C-70.64620971679689%5D%2C%22zoom%22%3A12%7D%7D");
+            //visualizeView.loadUrl("https://www.google.com/maps/d/embed?mid=1zegu4s0LGfEe5KzLxvRfzIwWFqM&hl=en");
+            visualizeView.loadUrl("https://www.google.cl/maps?source=tldso");
             visualizeView.setVisibility(View.VISIBLE);
+
             refreshMap();
             visualizeButton.setText("No Visualizar");
             refreshButton.setVisibility(View.VISIBLE);
