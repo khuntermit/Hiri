@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     public Boolean connected = false;
     public Boolean paired = false;
     private Boolean collectData = false;
-    private Boolean intentionalDisconnect = false;
 
     private BluetoothAdapter BTAdapter;
     public BluetoothDevice myDevice;
@@ -221,11 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             //Device has disconnected
-                if (intentionalDisconnect != true) {
-                    //timed pop up warning
-                }
                 connected = false;
-                intentionalDisconnect = false;
             }
         }
     };
@@ -379,7 +374,6 @@ public class MainActivity extends AppCompatActivity {
 
     // disconnects bluetooth
     private void disconnectBluetooth() {
-        intentionalDisconnect = true;
         connectButton.setText("Conéctate");
         connectText.setText("No Conectado");
         getButton.setEnabled(false);
