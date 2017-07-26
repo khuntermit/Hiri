@@ -25,8 +25,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private Boolean intentionalDisconnect = false;
 
     private BluetoothAdapter BTAdapter;
-    private BluetoothDevice myDevice;
+    public BluetoothDevice myDevice;
     private BluetoothSocket socket;
     private InputStream inputStream;
     private static final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
@@ -520,19 +518,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            // Temporary fix for data input size
-//            if (dataList.size() == 3) {
-//                pm25.setText(dataList.get(0));
-//                temp.setText(dataList.get(2));
-//                hum.setText(dataList.get(1));
-//            }
-//            else if (dataList.size() > 3) {
-//                pm25.setText(dataList.get(dataList.size() - 3).substring(3));
-//                temp.setText(dataList.get(dataList.size() - 1));
-//                hum.setText(dataList.get(dataList.size() - 2));
-//            }
-
-
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -592,8 +577,7 @@ public class MainActivity extends AppCompatActivity {
         if (visualizeButton.getText().equals("Visualizar")) {
             String apiKey = "AIzaSyD1Wiza9tr_q_B0A05GdMKFYMBXkq9x5WI";
             //visualizeView.loadUrl("https://khunter.carto.com/builder/8e06ad29-3e11-491f-aa4f-9d51ef7b55f0/embed?state=%7B%22map%22%3A%7B%22ne%22%3A%5B-33.52908912819004%2C-70.78903198242189%5D%2C%22sw%22%3A%5B-33.36895783056422%2C-70.50338745117189%5D%2C%22center%22%3A%5B-33.4490604352388%2C-70.64620971679689%5D%2C%22zoom%22%3A12%7D%7D");
-            //visualizeView.loadUrl("https://www.google.com/maps/d/embed?mid=1zegu4s0LGfEe5KzLxvRfzIwWFqM&hl=en");
-            visualizeView.loadUrl("https://www.google.cl/maps?source=tldso");
+            visualizeView.loadUrl("https://www.google.com/maps/d/embed?mid=1zegu4s0LGfEe5KzLxvRfzIwWFqM&hl=en");
             visualizeView.setVisibility(View.VISIBLE);
 
             refreshMap();
@@ -639,18 +623,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-            for (BluetoothDevice device : pairedDevices) {
-                if (device.getAddress().equals(deviceAddressList.get(which))) {
-                    paired = true;
-                    myDevice = device;
-                    connectBluetooth();
-                    break;
+                for (BluetoothDevice device : pairedDevices) {
+                    if (device.getAddress().equals(deviceAddressList.get(which))) {
+                        paired = true;
+                        myDevice = device;
+                        connectText.setText("Conectando...");
+                        break;
+                    }
                 }
-            }
 
             }
         });
+
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                connectBluetooth();
+            }
+        });
+
         builder.show();
+
     }
 
     private void pairDialog() {
