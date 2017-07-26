@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,8 +18,11 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.webkit.WebViewClient;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -112,6 +116,14 @@ public class MainActivity extends AppCompatActivity {
         lon = (EditText) findViewById(R.id.lon);
 
         webView = (WebView) findViewById(R.id.webView);
+        webView.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                stopData();
+                linkFail();
+            }
+        });
+
         connectText = (TextView) findViewById(R.id.connectText);
         databaseText = (TextView) findViewById(R.id.databaseText);
 
@@ -239,6 +251,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void stopData() {
+        continueDataButton.setText("Continuar Recibiendo Datos");
+        collectData = false;
+        handler.removeCallbacks(runSendData);
+    }
+
     // Gets and sends data every 4 seconds
     // When connection is lost, checks for connection every 15 seconds
     Handler handler = new Handler();
@@ -285,9 +303,9 @@ public class MainActivity extends AppCompatActivity {
         // Phone does not support Bluetooth so let the user know and exit.
         if (BTAdapter == null) {
             new AlertDialog.Builder(this)
-                    .setTitle("Not compatible")
-                    .setMessage("Your device does not support Bluetooth")
-                    .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                    .setTitle("No compatible")
+                    .setMessage("El dispositivo no es compatible con bluetooth.")
+                    .setPositiveButton("Salir", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             System.exit(0);
                         }
@@ -459,8 +477,6 @@ public class MainActivity extends AppCompatActivity {
         // Gets location from all providers and finds the best
         try {
 
-            // I think this code is redundant with Location Updates
-// ****************************************************************************************
             List<String> providers = mLocationManager.getProviders(true);
 
             for (String provider : providers) {
@@ -471,7 +487,6 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (SecurityException e) {}
             }
-// ***************************************************************************************
 
             if (bestLocation != null) {
                 longitude = bestLocation.getLongitude();
@@ -566,17 +581,18 @@ public class MainActivity extends AppCompatActivity {
             //String link = "https://samfierro.cartodb.com/api/v2/sql?q=INSERT INTO test (pm_25, date, time, the_geom) VALUES ("+pm25String+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=02e8c4a7c19b20c6dd81015ea2af533aeadf19de";
             String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO "+baseAddress+" (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
             webView.loadUrl(link);
-            Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_LONG).show();
+
+            Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_SHORT).show();
         }
     }
+
 
     /**
      * Loads cartoDB map into web view and makes it visible
      */
     private void visualize() {
         if (visualizeButton.getText().equals("Visualizar")) {
-            String apiKey = "AIzaSyD1Wiza9tr_q_B0A05GdMKFYMBXkq9x5WI";
-            //visualizeView.loadUrl("https://khunter.carto.com/builder/8e06ad29-3e11-491f-aa4f-9d51ef7b55f0/embed?state=%7B%22map%22%3A%7B%22ne%22%3A%5B-33.52908912819004%2C-70.78903198242189%5D%2C%22sw%22%3A%5B-33.36895783056422%2C-70.50338745117189%5D%2C%22center%22%3A%5B-33.4490604352388%2C-70.64620971679689%5D%2C%22zoom%22%3A12%7D%7D");
+            //String apiKey = "AIzaSyD1Wiza9tr_q_B0A05GdMKFYMBXkq9x5WI";
             visualizeView.loadUrl("https://www.google.com/maps/d/embed?mid=1zegu4s0LGfEe5KzLxvRfzIwWFqM&hl=en");
             visualizeView.setVisibility(View.VISIBLE);
 
@@ -667,6 +683,20 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void linkFail() {
+        new AlertDialog.Builder(this)
+                .setTitle("Datos no enviados")
+                .setMessage("No se enviaron datos. Asegúrese de enviar a la base de datos correcta y verificar su conexión.")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
     private void sendDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("No datos para enviar.")
@@ -679,9 +709,5 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-    }
-
-    public void setDatabaseText(TextView databaseText) {
-        this.databaseText = databaseText;
     }
 }
