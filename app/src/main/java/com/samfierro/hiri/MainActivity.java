@@ -42,7 +42,7 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText pm25; //private EditText pm10;
+    private EditText pm25; private EditText pm10;
     private EditText temp; private EditText hum;
     private EditText lat; private EditText lon;
 
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         catch (SecurityException e) {}
 
         pm25 = (EditText) findViewById(R.id.pm25Text);
-        //pm10 = (EditText) findViewById(R.id.pm10Text);
+        pm10 = (EditText) findViewById(R.id.pm10Text);
         temp = (EditText) findViewById(R.id.temp);
         hum = (EditText) findViewById(R.id.humidity);
         lat = (EditText) findViewById(R.id.lat);
@@ -150,29 +150,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        eraseButton = (Button) findViewById(R.id.eraseButton);
-        eraseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                eraseData();
-            }
-        });
+//        eraseButton = (Button) findViewById(R.id.eraseButton);
+//        eraseButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                eraseData();
+//            }
+//        });
 
-        sendButton = (Button) findViewById(R.id.sendButton);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendData();
-            }
-        });
+//        sendButton = (Button) findViewById(R.id.sendButton);
+//        sendButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                sendData();
+//            }
+//        });
 
-        getButton = (Button) findViewById(R.id.getDataButton);
-        getButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getData(false);
-            }
-        });
+//        getButton = (Button) findViewById(R.id.getDataButton);
+//        getButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                getData(false);
+//            }
+//        });
 
         visualizeButton = (Button) findViewById(R.id.visualizeButton);
         visualizeButton.setOnClickListener(new View.OnClickListener() {
@@ -369,7 +369,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         builder.show();
-
     }
 
     // disconnects bluetooth
@@ -515,12 +514,29 @@ public class MainActivity extends AppCompatActivity {
 
                 List<String> newData = Arrays.asList(parsed.split(","));
 
+                // Determines how the data from the sensor is parsed
+                // Change around the numbers after "get" to reorder the data
+
                 if (newData.size() == 3) {
 
                     pm25.setText(newData.get(0));
                     temp.setText(newData.get(2));
                     hum.setText(newData.get(1));
-                    // Send data only when you want to (pass true to send, false otherwise)
+                    // Send data only when you specify
+                    if (send) {
+                        sendData();
+                    }
+                }
+
+                // How to parse when pm10 is incorporated
+
+                else if (newData.size() == 4) {
+
+                    pm25.setText(newData.get(0));
+                    pm10.setText(newData.get(1));
+                    temp.setText(newData.get(3));
+                    hum.setText(newData.get(2));
+                    // Send data only when you specify
                     if (send) {
                         sendData();
                     }
@@ -558,7 +574,7 @@ public class MainActivity extends AppCompatActivity {
         // Need to wrap any data to send to the DB in single quotes
 
         String pm25String = "'" + pm25.getText().toString() + "'";
-        //String pm10String = "'" + pm10.getText().toString() + "'";
+        String pm10String = "'" + pm10.getText().toString() + "'";
         String tempString = "'" + temp.getText().toString() + "'";
         String humString = "'" + hum.getText().toString() + "'";
         String sensString = "'" + myDevice.getName() + "'";
@@ -605,14 +621,14 @@ public class MainActivity extends AppCompatActivity {
         visualizeView.reload();
     }
 
-    private void eraseData() {
-        pm25.setText("");
-        //pm10.setText("");
-        temp.setText("");
-        hum.setText("");
-        lat.setText("");
-        lon.setText("");
-    }
+//    private void eraseData() {
+//        pm25.setText("");
+//        pm10.setText("");
+//        temp.setText("");
+//        hum.setText("");
+//        lat.setText("");
+//        lon.setText("");
+//    }
 
     // Created by Kate - bluetooth menu
     private void chooseBluetooth() {
