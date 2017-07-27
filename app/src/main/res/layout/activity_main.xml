@@ -73,7 +73,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Continuar Recibiendo Datos"
+        android:text="Recibir Datos"
         android:enabled="false"
         android:id="@+id/keepGettingDataButton"
         android:padding="@dimen/connect_padding" />
@@ -100,13 +100,16 @@
             android:text="PM 2,5"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
-        <EditText
+
+        <TextView
+            android:id="@+id/pm25Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:layout_weight="1"
+            android:textColor="#000"
             android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size"
-            android:id="@+id/pm25Text"/>
+            android:textSize="@dimen/data_size" />
     </LinearLayout>
 
     <LinearLayout
@@ -120,11 +123,13 @@
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
 
-        <EditText
+        <TextView
             android:id="@+id/pm10Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:layout_weight="1"
+            android:textColor="#000"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size" />
     </LinearLayout>
@@ -139,13 +144,16 @@
             android:text="Temperatura"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
-        <EditText
+
+        <TextView
+            android:id="@+id/temp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textColor="#000"
+            android:gravity="right"
             android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size"
-            android:id="@+id/temp"/>
+            android:textSize="@dimen/data_size" />
     </LinearLayout>
 
     <LinearLayout
@@ -158,10 +166,12 @@
             android:text="Humedad"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
-        <EditText
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="right"
+            android:textColor="#000"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"
             android:id="@+id/humidity"/>
@@ -190,9 +200,11 @@
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
 
-        <EditText
+        <TextView
             android:id="@+id/lat"
+            android:textColor="#000"
             android:layout_width="match_parent"
+            android:gravity="right"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="@dimen/data_padding"
@@ -209,13 +221,16 @@
             android:text="Longitud"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
-        <EditText
+
+        <TextView
+            android:id="@+id/lon"
+            android:textColor="#000"
             android:layout_width="match_parent"
+            android:gravity="right"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size"
-            android:id="@+id/lon"/>
+            android:textSize="@dimen/data_size" />
     </LinearLayout>
 
     <LinearLayout android:layout_width="match_parent"

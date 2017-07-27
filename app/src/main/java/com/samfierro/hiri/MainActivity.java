@@ -42,13 +42,13 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText pm25; private EditText pm10;
-    private EditText temp; private EditText hum;
-    private EditText lat; private EditText lon;
+    private TextView pm25; private TextView pm10;
+    private TextView temp; private TextView hum;
+    private TextView lat; private TextView lon;
 
-    private Button getButton;
-    private Button eraseButton;
-    private Button sendButton;
+    //private Button getButton;
+    //private Button eraseButton;
+    //private Button sendButton;
     private Button connectButton;
     private Button visualizeButton;
     private TextView connectText;
@@ -107,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
         try {mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);}
         catch (SecurityException e) {}
 
-        pm25 = (EditText) findViewById(R.id.pm25Text);
-        pm10 = (EditText) findViewById(R.id.pm10Text);
-        temp = (EditText) findViewById(R.id.temp);
-        hum = (EditText) findViewById(R.id.humidity);
-        lat = (EditText) findViewById(R.id.lat);
-        lon = (EditText) findViewById(R.id.lon);
+        pm25 = (TextView) findViewById(R.id.pm25Text);
+        pm10 = (TextView) findViewById(R.id.pm10Text);
+        temp = (TextView) findViewById(R.id.temp);
+        hum = (TextView) findViewById(R.id.humidity);
+        lat = (TextView) findViewById(R.id.lat);
+        lon = (TextView) findViewById(R.id.lon);
 
         webView = (WebView) findViewById(R.id.webView);
         webView.setWebViewClient(new WebViewClient(){
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                 connected = true;
                 connectButton.setText("Desconéctate");
                 connectText.setText("Conectado" + " " + myDevice.getName().toString());
-                getButton.setEnabled(true);
+//                getButton.setEnabled(true);
                 continueDataButton.setEnabled(true);
             }
 
@@ -375,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
     private void disconnectBluetooth() {
         connectButton.setText("Conéctate");
         connectText.setText("No Conectado");
-        getButton.setEnabled(false);
+        //getButton.setEnabled(false);
         continueDataButton.setEnabled(false);
         try {socket.close();} catch (IOException e) {System.out.println(e);}
     }
