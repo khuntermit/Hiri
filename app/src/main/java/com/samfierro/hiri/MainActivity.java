@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -21,8 +20,6 @@ import android.text.InputType;
 import android.webkit.WebViewClient;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -186,10 +183,6 @@ public class MainActivity extends AppCompatActivity {
         visualizeView = (TouchyWebView) findViewById(R.id.vizWeb);
         visualizeView.getSettings().setJavaScriptEnabled(true);
 
-//      #############replace with correct embedded map.##########################################################
-        // Map pop-up
-        // visualizeView.loadUrl("https://samfierro.cartodb.com/viz/2942f7d2-3980-11e6-9d7a-0ecfd53eb7d3/embed_map");
-
         refreshButton = (Button) findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -252,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         handler.removeCallbacks(runSendData);
     }
 
-    // Gets and sends data every 4 seconds
+    // Gets and sends data every 5 seconds
     // When connection is lost, checks for connection every 15 seconds
     Handler handler = new Handler();
     private final Runnable runSendData = new Runnable(){
@@ -261,27 +254,21 @@ public class MainActivity extends AppCompatActivity {
 
                 // Connected
                 if (connected) {
-                    // Prepare and send the data here..
-                    getData(true);
+                    // Prepare and send the data here every 5 seconds
+                    getData();
+                    /*Time between retrievals is 1 second longer than shown,
+                    reading the data from bluetooth has a 1 second delay*/
                     handler.postDelayed(this, 4000);
                 }
 
                 // Connection lost
                 else {
-                    // To cut system connect delay
-                    long end = System.currentTimeMillis() + 4000;
-                    while (System.currentTimeMillis() < end) {
-                        try {
-                            connectBluetooth();
-                        } catch (Exception e) {
-                        }
-                    }
-                    handler.postDelayed(this, 10000);
+                    try {
+                        connectBluetooth();
+                    } catch (Exception e) {}
+                    // Waits 15 seconds in between connect attempts
+                    handler.postDelayed(this, 15000);
                 }
-
-//###############scheduled to run every 5 seconds. change the 5 to another number to change the seconds.
-//###############for example, 30000 would be 30 seconds.
-
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -293,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
      * Finds paired bluetooth device for sensor
      */
 
-    // Changed so that this method only sets up Bluetooth capability
+    // Sets up Bluetooth capability
     private void setUpBluetooth() {
         // Phone does not support Bluetooth so let the user know and exit.
         if (BTAdapter == null) {
@@ -308,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
+
         // Device supports Bluetooth
         if (!BTAdapter.isEnabled()) {
             Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -347,13 +335,12 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("El nombre de su base de datos");
 
-// Set up the input
+        // Set up the input
         final EditText input = new EditText(this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
         builder.setView(input);
 
-// Set up the buttons
+        // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -465,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Reads data from bluetooth sensor and gets geocoordinate
      */
-    private void getData(boolean send) {
+    private void getData() {
 
         // Gets location from all providers and finds the best
         try {
@@ -522,10 +509,6 @@ public class MainActivity extends AppCompatActivity {
                     pm25.setText(newData.get(0));
                     temp.setText(newData.get(2));
                     hum.setText(newData.get(1));
-                    // Send data only when you specify
-                    if (send) {
-                        sendData();
-                    }
                 }
 
                 // How to parse when pm10 is incorporated
@@ -536,11 +519,9 @@ public class MainActivity extends AppCompatActivity {
                     pm10.setText(newData.get(1));
                     temp.setText(newData.get(3));
                     hum.setText(newData.get(2));
-                    // Send data only when you specify
-                    if (send) {
-                        sendData();
-                    }
                 }
+
+                sendData();
             }
 
         } catch (IOException e) {
@@ -580,20 +561,14 @@ public class MainActivity extends AppCompatActivity {
         String sensString = "'" + myDevice.getName() + "'";
 
 
-//        if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("")
-//                && pm10String.equals("") && tempString.equals("") && humString.equals("")) {
-        if (lat_coord.equals("") && long_coord.equals("") && pm25String.equals("") && tempString.equals("") && humString.equals("")) {
-            sendDialog();
-        } else {
-            String baseAddress = database.toLowerCase().replaceAll(" ", "_");
+        String baseAddress = database.toLowerCase().replaceAll(" ", "_");
 //          ################replace link with correct cartoDB user name and api key.################################
 //          ################can change what values are sent depending on cartoDB table.#############################
-            //String link = "https://samfierro.cartodb.com/api/v2/sql?q=INSERT INTO test (pm_25, date, time, the_geom) VALUES ("+pm25String+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=02e8c4a7c19b20c6dd81015ea2af533aeadf19de";
-            String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO "+baseAddress+" (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
-            webView.loadUrl(link);
+        String link = "https://khunter.carto.com/api/v2/sql?q=INSERT INTO "+baseAddress+" (sens, pm_25, hum, temp, date, time, the_geom) VALUES ("+sensString+", "+pm25String+", "+humString+", "+tempString+", "+newDate+", "+newTime+", ST_SetSRID(ST_Point("+long_coord+", "+lat_coord+"),4326))&api_key=6c0f6b8727acebc16c7492780ba5bbd7f73b32ca";
+        webView.loadUrl(link);
 
-            Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_SHORT).show();
-        }
+        Toast.makeText(MainActivity.this,"Datos enviado",Toast.LENGTH_SHORT).show();
+
     }
 
 
@@ -602,7 +577,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void visualize() {
         if (visualizeButton.getText().equals("Visualizar")) {
-            //String apiKey = "AIzaSyD1Wiza9tr_q_B0A05GdMKFYMBXkq9x5WI";
+
+            //Tried to work the google API but wasn't working, so put in an embed map instead
             visualizeView.loadUrl("https://www.google.com/maps/d/embed?mid=1zegu4s0LGfEe5KzLxvRfzIwWFqM&hl=en");
             visualizeView.setVisibility(View.VISIBLE);
 
@@ -630,9 +606,11 @@ public class MainActivity extends AppCompatActivity {
 //        lon.setText("");
 //    }
 
-    // Created by Kate - bluetooth menu
+    // Bluetooth paired devices menu
     private void chooseBluetooth() {
         final Set<BluetoothDevice> pairedDevices = BTAdapter.getBondedDevices();
+
+        // Stores the name and addresses of the paired devices
         final List<String> deviceItemList = new ArrayList<String>();
         final List<String> deviceAddressList = new ArrayList<String>();
 
@@ -643,12 +621,14 @@ public class MainActivity extends AppCompatActivity {
 
         final CharSequence[] devices = deviceItemList.toArray(new CharSequence[deviceItemList.size()]);
 
+        // Menu
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Dispositivos emparejados");
         builder.setItems(devices, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
+                // Chooses the device with the same address
                 for (BluetoothDevice device : pairedDevices) {
                     if (device.getAddress().equals(deviceAddressList.get(which))) {
                         paired = true;
@@ -661,6 +641,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Connects upon exit
         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
@@ -686,31 +667,18 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
+                        // Do nothing
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
+    // Dialog for a failed load of the link
     private void linkFail() {
         new AlertDialog.Builder(this)
                 .setTitle("Datos no enviados")
                 .setMessage("No se enviaron datos. Asegúrese de enviar a la base de datos correcta y verificar su conexión.")
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
-    private void sendDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("No datos para enviar.")
-                .setMessage("Por favor ponga datos antes de enviar.")
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

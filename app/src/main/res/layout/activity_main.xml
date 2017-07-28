@@ -105,36 +105,37 @@
             android:id="@+id/pm25Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
             android:layout_weight="1"
             android:textColor="#000"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size" />
+
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="@dimen/data_label_size"
-            android:layout_height="wrap_content"
-            android:text="PM 10"
-            android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size"/>
-
-        <TextView
-            android:id="@+id/pm10Text"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
-            android:layout_weight="1"
-            android:textColor="#000"
-            android:padding="@dimen/data_padding"
-            android:textSize="@dimen/data_size" />
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
+            <TextView
+                android:layout_width="@dimen/data_label_size"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/data_padding"
+                android:text="PM 10"
+                android:textSize="@dimen/data_size" />
+
+            <TextView
+                android:id="@+id/pm10Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="@dimen/data_padding"
+                android:textColor="#000"
+                android:textSize="@dimen/data_size" />
+
+        </LinearLayout>
+
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -151,7 +152,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="#000"
-            android:gravity="right"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size" />
     </LinearLayout>
@@ -166,24 +166,27 @@
             android:text="Humedad"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
             android:textColor="#000"
             android:padding="@dimen/data_padding"
             android:textSize="@dimen/data_size"
             android:id="@+id/humidity"/>
+
     </LinearLayout>
 
     <TextView
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/data_title_size"
         android:text="Georeferencia"
         android:paddingTop="@dimen/data_title_padding_top"
         android:textStyle="bold"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -204,7 +207,6 @@
             android:id="@+id/lat"
             android:textColor="#000"
             android:layout_width="match_parent"
-            android:gravity="right"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="@dimen/data_padding"
@@ -226,7 +228,6 @@
             android:id="@+id/lon"
             android:textColor="#000"
             android:layout_width="match_parent"
-            android:gravity="right"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="@dimen/data_padding"
