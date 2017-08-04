@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     // Created by Kate - detects changes in Bluetooth connection
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -509,19 +510,19 @@ public class MainActivity extends AppCompatActivity {
                     pm25.setText(newData.get(0));
                     temp.setText(newData.get(2));
                     hum.setText(newData.get(1));
+                    sendData();
                 }
 
                 // How to parse when pm10 is incorporated
 
-                else if (newData.size() == 4) {
+//                else if (newData.size() == 4) {
+//
+//                    pm25.setText(newData.get(0));
+//                    pm10.setText(newData.get(1));
+//                    temp.setText(newData.get(3));
+//                    hum.setText(newData.get(2));
+//                }
 
-                    pm25.setText(newData.get(0));
-                    pm10.setText(newData.get(1));
-                    temp.setText(newData.get(3));
-                    hum.setText(newData.get(2));
-                }
-
-                sendData();
             }
 
         } catch (IOException e) {
