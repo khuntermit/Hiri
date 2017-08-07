@@ -43,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView temp; private TextView hum;
     private TextView lat; private TextView lon;
 
-    //private Button getButton;
-    //private Button eraseButton;
-    //private Button sendButton;
     private Button connectButton;
     private Button visualizeButton;
     private TextView connectText;
@@ -147,30 +144,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        eraseButton = (Button) findViewById(R.id.eraseButton);
-//        eraseButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                eraseData();
-//            }
-//        });
-
-//        sendButton = (Button) findViewById(R.id.sendButton);
-//        sendButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                sendData();
-//            }
-//        });
-
-//        getButton = (Button) findViewById(R.id.getDataButton);
-//        getButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                getData(false);
-//            }
-//        });
-
         visualizeButton = (Button) findViewById(R.id.visualizeButton);
         visualizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Created by Kate - detects changes in Bluetooth connection
+    // Detects changes in Bluetooth connection
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -208,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
                 connected = true;
                 connectButton.setText("Desconéctate");
                 connectText.setText("Conectado" + " " + myDevice.getName().toString());
-//                getButton.setEnabled(true);
                 continueDataButton.setEnabled(true);
             }
 
@@ -359,17 +331,15 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // disconnects bluetooth
+    // Disconnects bluetooth
     private void disconnectBluetooth() {
         connectButton.setText("Conéctate");
         connectText.setText("No Conectado");
-        //getButton.setEnabled(false);
         continueDataButton.setEnabled(false);
         try {socket.close();} catch (IOException e) {System.out.println(e);}
     }
 
 
-    /**By Kate**/
     /** Determines whether one Location reading is better than the current Location fix**/
     private void updateBestLocation(Location l) {
         //1 minute
@@ -426,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
         return;
     }
 
-/** Checks whether two providers are the same */
+    /** Checks whether two providers are the same */
     private boolean isSameProvider(String provider1, String provider2) {
         if (provider1 == null) {
             return provider2 == null;
@@ -449,7 +419,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    //time stamp
     /**
      * Reads data from bluetooth sensor and gets geocoordinate
      */
@@ -503,7 +472,6 @@ public class MainActivity extends AppCompatActivity {
                 List<String> newData = Arrays.asList(parsed.split(","));
 
                 // Determines how the data from the sensor is parsed
-                // Change around the numbers after "get" to reorder the data
 
                 if (newData.size() == 3) {
 
@@ -512,17 +480,6 @@ public class MainActivity extends AppCompatActivity {
                     hum.setText(newData.get(1));
                     sendData();
                 }
-
-                // How to parse when pm10 is incorporated
-
-//                else if (newData.size() == 4) {
-//
-//                    pm25.setText(newData.get(0));
-//                    pm10.setText(newData.get(1));
-//                    temp.setText(newData.get(3));
-//                    hum.setText(newData.get(2));
-//                }
-
             }
 
         } catch (IOException e) {
@@ -598,14 +555,6 @@ public class MainActivity extends AppCompatActivity {
         visualizeView.reload();
     }
 
-//    private void eraseData() {
-//        pm25.setText("");
-//        pm10.setText("");
-//        temp.setText("");
-//        hum.setText("");
-//        lat.setText("");
-//        lon.setText("");
-//    }
 
     // Bluetooth paired devices menu
     private void chooseBluetooth() {
